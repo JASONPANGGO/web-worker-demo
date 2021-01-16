@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <style>
+      .container {
+        width: 100%;
+        height: 100px;
+        display: flex;
+        justify-content: space-around;
+        align-items: center;
+      }
+      .box {
+        width: 100%;
+        height: 50px;
+        background-color: #888;
+        transition: 0.5s all;
+        cursor: pointer;
+      }
+      .box:nth-child(even) {
+        background-color: #999;
+      }
+      .box:hover {
+        background-color: #fff;
+      }
+      .output {
+        margin-top: 10px;
+        width: 100%;
+        min-height: 100px;
+        background-color: #eee;
+        padding: 10px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <button id="btn1">click me to stuck</button>
+      <button id="btn2">use web worker</button>
+    </div>
+    <div class="wrapper">
+      <div class="box"></div>
+      <div class="box"></div>
+      <div class="box"></div>
+      <div class="box"></div>
+      <div class="box"></div>
+      <div class="box"></div>
+    </div>
+    <div class="output" id="output"></div>
+    <div class="info">
+        <code>
+            The heavy work refers to a function calling to run <i>Math.random().toString(16).slice(2)</i> for 9999999 times.
+        </code>
+    </div>
+    <script>
+      window.output = document.querySelector("#output");
+      window.write = function (msg) {
+        window.output.innerHTML += msg;
+      };
+    </script>
+    <script>
+      const worker = new Worker("./worker.js");
+      function heavyWork() {
+        let num = 9999999;
+        let ran;
+        while (num--) {
+          ran = Math.random().toString(16).slice(2);
+        }
+        console.log("heavy work finish", ran);
+        window.write(`heavy work finish: ${ran}<br>`);
+      }
+      const btn1 = document.querySelector("#btn1");
+      btn1.addEventListener("click", () => {
+        heavyWork();
+      });
+      const btn2 = document.querySelector("#btn2");
+      worker.onmessage = function (evt) {
+        window.write(evt.data);
+      };
+      btn2.addEventListener("click", () => {
+        worker.postMessage(0);
+      });
+    </script>
+  </body>
+</html>
